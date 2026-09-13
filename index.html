@@ -534,14 +534,33 @@
     }
     initViewCounter();
 
-    // 2. Discord Live Status
+    // 2. Discord & Roblox Live Status Sync
     let DISCORD_USER_ID = "1013550884048879768";
+    let ROBLOX_USER_ID = "1399461981";
     const avatarEl = document.getElementById('main-avatar');
     const discordCardAvatar = document.getElementById('discord-card-avatar');
+    const robloxAvatarImg = document.getElementById('roblox-avatar-img');
     const statusDot = document.getElementById('discord-status-dot');
     const activityTag = document.getElementById('discord-activity-tag');
     const discordCardBadge = document.getElementById('discord-card-badge');
     const discordCardStatus = document.getElementById('discord-card-custom-status');
+
+    // Sincronizar Avatar de Roblox en Tiempo Real
+    async function syncRobloxAvatar() {
+      try {
+        const res = await fetch(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${ROBLOX_USER_ID}&size=420x420&format=Png&isCircular=false`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.data && data.data[0] && data.data[0].imageUrl) {
+            robloxAvatarImg.src = data.data[0].imageUrl;
+          }
+        }
+      } catch (e) {
+        console.log('Roblox fallback local avatar');
+      }
+    }
+    syncRobloxAvatar();
+    setInterval(syncRobloxAvatar, 60000); // Chequeo continuo cada minuto
 
     async function syncDiscordStatus() {
       try {
@@ -570,10 +589,11 @@
           discordCardStatus.textContent = activityString;
         }
       } catch (err) {
-        avatarEl.src = "https://lh3.googleusercontent.com/a-/ALV-UjXMlXRIDKDESGrpY8MgNlhQrC-WAvYV5CCzYB9io2BF4rIExBeprZihN2xKt7py0CeWFC2e90UF8O_KYmN91yW6ToC77UGLFA7rcuaDzJf_hgZmGtRFFyli8dvY364s2IXeHZo_zR_1dmIY0zJno2aJrcqFa0EBTOoNkmUFy6PhLEUm8f-af1ACmLzYm4-P3JvvbFsjfGaDV1K3cQrzUFCb5V9piPh2tN7I7edHddZxqKhiJXNceFhqgFUStY1B8_mHV7Q7XibNgvI1BdDv7HdE76E6YivDBPVM4AwlASgVHZKa6A9hE-fD27xr1apk3BZUnsx_oNqwRQOxXP_sEfkOyFLVyQAvBcz_FhDf6NeH8RG6J0q6S8q3a7C04Spp1XPtYfp1nE9drpKN0VEcp7Dbz6ePq5T-4pt4lrB50ncHHJUyWLswR0T51VvFCfP-mCPQ8OjceHa3SMG6Rk5udbSRYQF1UaTm8VpNeVPt7oRSYCNlL8tYfJUwgjSvDDxPnzkN1HYqMEVM5BoZa4Fo92m4Jk65H_2z0CfuSQBbDhszVid6J6vxlxTLINbc2P4TIbtC9P-R6A7daK5f5ctAZ969S8cebvERegHgpbydjwBCPnSLkW4toK9xNsSvYfhVLCEMM6I870sKahMheLMG724_RFa0sEHxZW-jS2uWWT-VPuDbPNigEfINprA31-F2Syhk9PDMActjDFlaIWX7lQ-ZtO0IPJOAbpGqTnDCv-lPQ0mVextdWVrmfMwDPcR4Eg4DuR9342R969Prml0vxKGzg91NvzgekdIbeeskNV58bhlhUHQG1ie6xHBJx_oWRyDnaZmyAmVZMEnzuVxqOkpDI29XOFOfjxCFUgkcOJpsuH_ouB_FPzLkV004AaPGwMgQWYiD261XuSLwjVRL2vwqfRHc6i280ZKGUeK2yWBZ3kQVGh5Z2lYROBnqt2lZwj7yq0hzhWkaqtTe6-6XLNNJVcSp5MJhlk2bgAy9vdePMATtF6WeMUYzsiYC8-48dSFtXm1JkDF0Zddoz3H4Wy9kSgcLsUf6bX4MYURIRlnva3SEuwUq37H=s288-c";
+        console.log('Discord Lanyard info:', err);
       }
     }
     syncDiscordStatus();
+    setInterval(syncDiscordStatus, 15000); // Chequeo continuo cada 15 segundos
 
     // 3. Typing Effect
     const phrasesEs = [
